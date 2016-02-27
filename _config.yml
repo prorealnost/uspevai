@@ -1,0 +1,7 @@
+baseurl: ""
+url: "http://uspevai.soedinennost.com"
+markdown: kramdown
+exclude:
+  - node_modules
+  - package.json
+  - README.md
