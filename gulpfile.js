@@ -3,7 +3,8 @@ var gulp = require('gulp'),
   sass = require('gulp-sass'),
   watch = require('gulp-watch'),
   notify = require('gulp-notify'),
-  connect = require('gulp-connect');
+  connect = require('gulp-connect'),
+  cp = require('child_process');
 
 gulp.task('connectBuild', function() {
   connect.server({
@@ -11,6 +12,22 @@ gulp.task('connectBuild', function() {
     port: 8000,
     livereload: true
   });
+});
+
+/**
+ * Build the Jekyll Site
+ */
+gulp.task('jekyll', function(done) {
+  notify('Compiling Jekyll');
+
+  return cp.spawn('jekyll', ['build'], {stdio: 'inherit'})
+  .on('close', done);
+});
+
+gulp.task('jekyll-rebuild', ['jekyll'], function() {    
+  gulp.src('./index.html')
+    .pipe( connect.reload() )
+    .pipe( notify('Compiling Jekyll') );
 });
 
 gulp.task('css', function() {
@@ -21,48 +38,15 @@ gulp.task('css', function() {
     .pipe( notify('CSS task complete!') )
 });
 
-gulp.task('js', function() {
-  return gulp.src('./js/*.js')
-    .pipe( gulp.dest('./_site/js') )
-    .pipe( connect.reload() )
-    .pipe( notify('JS task complete!') )
-});
-
-gulp.task('html', function() {
-  return gulp.src('./*.html')
-    .pipe( connect.reload() )
-    .pipe( gulp.dest('./_site') )
-});
-
-gulp.task('images', function() {
-  return gulp.src(['./images/**/*'])
-    .pipe( connect.reload() )
-    .pipe( gulp.dest('./_site/images') )
-});
-
-gulp.task('vendor', function() {
-  return gulp.src(['./vendor/**/*'])
-    .pipe( connect.reload() )
-    .pipe( gulp.dest('./_site/vendor') )
-});
-
 /* Default task */
 gulp.task('default', ['connectBuild', 'watch'], function() {
-  gulp.start('css', 'js', 'html', 'images', 'vendor');
+  gulp.start('jekyll');
 });
 
 /* Watch task */
 gulp.task('watch', function() {
   gulp.watch('./_sass/*.scss', ['css']);
-  gulp.watch('./js/*.js', ['js']);
-  gulp.watch('./images/*', ['images']);
-  gulp.watch('./*.html', ['html']);
+  gulp.watch(['*.html', '_layouts/*.html', '_posts/*', 'images/*'], ['jekyll-rebuild']);
 });
 
-// for i in {1..12}; do convert gives-icon-$i.png -gravity center -background none -extent 180x180 gives-icon-$i-extend.png; done
-// for i in {1..3}; do convert whom-icon-$i.png -gravity center -background none -extent 192x192 whom-icon-$i-extend.png; done
-// for i in {1..3}; do convert how-icon-1-$i.png -gravity center -background none -extent 160x160 how-icon-1-$i-extend.png; done
-// for i in {1..2}; do convert how-icon-2-$i.png -gravity center -background none -extent 160x160 how-icon-2-$i-extend.png; done
-
-// for i in {1..3}; do convert method-icon-$i.png -gravity center -background none -extent 222x222 method-icon-$i-extend.png; done
-// for i in {1..6}; do convert find-icon-$i.png -gravity center -background none -extent 165x165 find-icon-$i-extend.png; done
+// for i in {1..8}; do convert learn-icon-$i.png -gravity center -background none -extent 165x165 learn-icon-$i-extend.png; done
